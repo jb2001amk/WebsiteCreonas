@@ -14,15 +14,55 @@
   html, body {
     background: #ffffff;
     width: 100%;
+    scroll-behavior: smooth;
+  }
+
+  .page-nav {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .page-nav button {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #000000;
+    font-size: 16px;
+    font-family: Arial, Helvetica, sans-serif;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
+    padding: 0;
+  }
+
+  .page-nav button:hover,
+  .page-nav button.active {
+    opacity: 1;
+  }
+
+  .page {
+    width: 100%;
+    min-height: 100vh;
+    background: #ffffff;
+  }
+
+  .landing-page {
+    display: flex;
+    flex-direction: column;
   }
 
   .landing {
-    height: 100vh;
     width: 100%;
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
   }
 
   .landing img {
@@ -31,37 +71,52 @@
     display: block;
   }
 
-  .gallery {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: #ffffff;
-  }
-
-  .gallery img {
+  .page img.full {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100vh;
+    object-fit: cover;
   }
 </style>
 </head>
 <body>
 
-  <section class="landing">
-    <img src="camcorder-loop-2.gif" alt="Camcorder loop">
+  <nav class="page-nav">
+    <button onclick="goToPage(1)">1</button>
+    <button onclick="goToPage(2)">2</button>
+    <button onclick="goToPage(3)">3</button>
+    <button onclick="goToPage(4)">4</button>
+    <button onclick="goToPage(5)">5</button>
+  </nav>
+
+  <section id="page1" class="page landing-page">
+    <div class="landing">
+      <img src="camcorder-loop-2.gif" alt="Camcorder loop">
+    </div>
+    <img class="full" src="IMG_1084.JPG" alt="">
   </section>
 
-  <section class="gallery">
-    <img src="IMG_1248.JPG" alt="">
-    <img src="IMG_1258.JPG" alt="">
-    <img src="IMG_1415.JPG" alt="">
-    <img src="IMG_1442.JPG" alt="">
-    <img src="IMG_0051.JPG" alt="">
-    <img src="IMG_0391.JPG" alt="">
-    <img src="IMG_1084.JPG" alt="">
-    <img src="IMG_1133.JPG" alt="">
-    <img src="IMG_1236.JPG" alt="">
+  <section id="page2" class="page">
+    <img class="full" src="IMG_1258.JPG" alt="">
   </section>
+
+  <section id="page3" class="page">
+    <img class="full" src="IMG_1442.JPG" alt="">
+  </section>
+
+  <section id="page4" class="page">
+    <img class="full" src="IMG_1248.JPG" alt="">
+  </section>
+
+  <section id="page5" class="page">
+    <img class="full" src="IMG_0391.JPG" alt="">
+  </section>
+
+  <script>
+    function goToPage(n) {
+      document.getElementById('page' + n).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 
 </body>
 </html>
