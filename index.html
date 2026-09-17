@@ -58,17 +58,17 @@
   }
 
   .landing {
+    position: relative;
     width: 100%;
     height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    overflow: hidden;
   }
 
-  .landing img {
-    max-width: 90%;
-    max-height: 90vh;
-    display: block;
+  .loop-instance {
+    position: absolute;
+    width: 165px;
+    height: auto;
+    transform: translate(-50%, -50%);
   }
 
   .page img.full {
@@ -90,9 +90,7 @@
   </nav>
 
   <section id="page1" class="page landing-page">
-    <div class="landing">
-      <img src="camcorder-loop-2.gif" alt="Camcorder loop">
-    </div>
+    <div class="landing" id="landing"></div>
     <img class="full" src="IMG_1084.JPG" alt="">
   </section>
 
@@ -116,6 +114,47 @@
     function goToPage(n) {
       document.getElementById('page' + n).scrollIntoView({ behavior: 'smooth' });
     }
+
+    // CSS reference pixel: 96px = 1in = 2.54cm
+    const PX_PER_CM = 96 / 2.54;
+    const SPAWN_DISTANCE = 1.05 * PX_PER_CM;
+
+    const landing = document.getElementById('landing');
+    let lastX = null;
+    let lastY = null;
+    let instanceCount = 0;
+
+    landing.addEventListener('mousemove', (e) => {
+      const rect = landing.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+
+      if (lastX === null) {
+        lastX = x;
+        lastY = y;
+        return;
+      }
+
+      const dist = Math.hypot(x - lastX, y - lastY);
+      if (dist >= SPAWN_DISTANCE) {
+        const img = document.createElement('img');
+        // unique query string forces its own decode/animation timeline, independent of other instances
+        img.src = 'camcorder-loop-2-1.gif?i=' + (instanceCount++);
+        img.className = 'loop-instance';
+        img.style.left = x + 'px';
+        img.style.top = y + 'px';
+        landing.appendChild(img);
+
+        lastX = x;
+        lastY = y;
+      }
+    });
+
+    landing.addEventListener('click', () => {
+      landing.querySelectorAll('.loop-instance').forEach((img) => img.remove());
+      lastX = null;
+      lastY = null;
+    });
   </script>
 
 </body>
