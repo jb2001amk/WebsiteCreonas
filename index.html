@@ -32,7 +32,7 @@
     height: 20px;
     border: none;
     background: transparent;
-    color: #ffffff;
+    color: #00ffff;
     font-size: 16px;
     font-weight: bold;
     font-family: Arial, Helvetica, sans-serif;
@@ -90,8 +90,8 @@
   }
 
   @font-face {
-    font-family: 'NeueHaasDisplayXXThin';
-    src: url('NeueHaasDisplayXXThin.ttf') format('truetype');
+    font-family: 'NeueHaasDisplayXThin';
+    src: url('NeueHaasDisplayXThin.ttf') format('truetype');
   }
 
   #page4,
@@ -103,6 +103,10 @@
     font-size: clamp(1.82rem, 3.38vw, 3.38rem);
   }
 
+  #page4 .about-text {
+    text-align: left;
+  }
+
   .about-text {
     position: absolute;
     top: 50%;
@@ -110,10 +114,10 @@
     transform: translate(-50%, -50%);
     width: min(46ch, 88vw);
     text-align: center;
-    font-family: 'NeueHaasDisplayXXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(1.4rem, 2.6vw, 2.6rem);
     line-height: 1.25;
-    color: #ffffff;
+    color: #00ffff;
     text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
   }
 
@@ -137,8 +141,8 @@
   }
 
   @font-face {
-    font-family: 'NeueHaasDisplayXXThinItalic';
-    src: url('NeueHaasDisplayXXThinItalic.ttf') format('truetype');
+    font-family: 'NeueHaasDisplayXThinItalic';
+    src: url('NeueHaasDisplayXThinItalic.ttf') format('truetype');
   }
 
   #page3 {
@@ -166,10 +170,10 @@
 
   .project-list li {
     position: relative;
-    font-family: 'NeueHaasDisplayXXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(1.4rem, 2.6vw, 2.6rem);
     line-height: 1.35;
-    color: #ffffff;
+    color: #00ffff;
     text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
     white-space: nowrap;
     cursor: pointer;
@@ -186,7 +190,7 @@
   }
 
   .project-list li:hover {
-    font-family: 'NeueHaasDisplayXXThinItalic', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'NeueHaasDisplayXThinItalic', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .project-list li:hover::after {
@@ -215,7 +219,7 @@
   }
 
   .project-text .italic {
-    font-family: 'NeueHaasDisplayXXThinItalic', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'NeueHaasDisplayXThinItalic', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .project-link {
@@ -243,10 +247,10 @@
   .project-text {
     margin-top: 1em;
     text-align: left;
-    font-family: 'NeueHaasDisplayXXThin', 'Helvetica Neue', Arial, sans-serif;
-    font-size: clamp(1rem, 1.4vw, 1.4rem);
+    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-size: clamp(1.3rem, 1.82vw, 1.82rem);
     line-height: 1.3;
-    color: #ffffff;
+    color: #00ffff;
     text-shadow: 0 0 18px rgba(0, 0, 0, 0.35);
   }
 
@@ -640,11 +644,11 @@
     import { FBXLoader } from 'three/addons/loaders/FBXLoader.js';
 
     const ITEMS = [
-      { type: 'video', src: 'Carousel/AO_GLOBE_WIREFRAME.mp4' },
-      { type: 'fbx',   src: 'Carousel/BurgiScan_V2.fbx', grey: true },
+      { type: 'image', src: 'Carousel/Wireframe.gif', transparent: true },
+      { type: 'image', src: 'Carousel/TV.gif', transparent: true },
       { type: 'video', src: 'Carousel/GRID.mov' },
       { type: 'image', src: 'Carousel/Bird.gif', transparent: true },
-      { type: 'fbx',   src: 'Carousel/Running_E.fbx' },
+      { type: 'image', src: 'Carousel/Running.gif', transparent: true },
       { type: 'video', src: 'Carousel/SKYLINEBILLBOARDS_V3.mp4' },
       { type: 'image', src: 'Carousel/Typo.jpg' }
     ];
