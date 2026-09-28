@@ -356,11 +356,11 @@
       gap: 12px;
     }
 
-    /* background photos fit to the device width instead of being cropped by object-fit: cover */
+    /* background photos stretch to fill the device width and height independently, instead of being cropped by object-fit: cover */
     .landing-bg,
     .page img.full,
     .bg-layer {
-      object-fit: contain;
+      object-fit: fill;
     }
 
     /* single centered camcorder gif instead of the mouse-trail of spawned gifs */
