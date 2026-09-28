@@ -9,6 +9,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    letter-spacing: -0.04em;
   }
 
   html, body {
@@ -90,8 +91,8 @@
   }
 
   @font-face {
-    font-family: 'NeueHaasDisplayXThin';
-    src: url('NeueHaasDisplayXThin.ttf') format('truetype');
+    font-family: 'Roboto-ExtraLight';
+    src: url('Roboto-ExtraLight.ttf') format('truetype');
   }
 
   #page4,
@@ -114,7 +115,7 @@
     transform: translate(-50%, -50%);
     width: min(46ch, 88vw);
     text-align: center;
-    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto-ExtraLight', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(1.4rem, 2.6vw, 2.6rem);
     line-height: 1.25;
     color: #00ffff;
@@ -141,8 +142,8 @@
   }
 
   @font-face {
-    font-family: 'NeueHaasDisplayXThinItalic';
-    src: url('NeueHaasDisplayXThinItalic.ttf') format('truetype');
+    font-family: 'Roboto-ExtraLightItalic';
+    src: url('Roboto-ExtraLightItalic.ttf') format('truetype');
   }
 
   #page3 {
@@ -152,12 +153,11 @@
   .project-list-wrap {
     position: absolute;
     top: 0;
-    left: 0;
-    width: 50%;
+    left: 6vw;
+    width: max-content;
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
   }
 
   .project-list {
@@ -170,7 +170,7 @@
 
   .project-list li {
     position: relative;
-    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto-ExtraLight', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(1.4rem, 2.6vw, 2.6rem);
     line-height: 1.35;
     color: #00ffff;
@@ -190,7 +190,7 @@
   }
 
   .project-list li:hover {
-    font-family: 'NeueHaasDisplayXThinItalic', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto-ExtraLightItalic', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .project-list li:hover::after {
@@ -200,8 +200,7 @@
   .project-detail {
     position: absolute;
     top: 0; /* set from the list's top edge by script */
-    left: 75%;
-    transform: translateX(-50%);
+    right: 6vw;
     width: min(40vw, 93.33vh);
     display: none;
     pointer-events: none;
@@ -219,7 +218,7 @@
   }
 
   .project-text .italic {
-    font-family: 'NeueHaasDisplayXThinItalic', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto-ExtraLightItalic', 'Helvetica Neue', Arial, sans-serif;
   }
 
   .project-link {
@@ -247,7 +246,7 @@
   .project-text {
     margin-top: 1em;
     text-align: left;
-    font-family: 'NeueHaasDisplayXThin', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Roboto-ExtraLight', 'Helvetica Neue', Arial, sans-serif;
     font-size: clamp(1.3rem, 1.82vw, 1.82rem);
     line-height: 1.3;
     color: #00ffff;
@@ -434,7 +433,7 @@
 
   <section id="page4" class="page">
     <div class="bg-cycle"></div>
-    <p class="about-text">my name is jonas i am a video artist based in basel, switzerland. I am interested in and work with video editing, visual effects and 3D animation, using davinci resolve, blender and touchdesigner.</p>
+    <p class="about-text">my name is jonas i am a video artist based in basel, switzerland. i am interested in and work with video editing, visual effects and 3D animation, using davinci resolve, blender and touchdesigner.</p>
   </section>
 
   <section id="page5" class="page">
@@ -458,10 +457,11 @@
       '<li id="projectDragon">rip the dragon</li>' +
       '<li id="projectAO">AO globe animation</li>' +
       '<li id="projectTu">tu mirada</li>' +
-      '<li id="projectFallout">fallout</li>' +
-      Array.from({ length: 1 }, () => '<li>project title</li>').join('');
+      '<li id="projectFallout">fallout</li>';
 
-    // hover shows the video, click pins it (click again to unpin); only one project shows at a time
+    // mouse: hovering previews the video, click pins it (click again to unpin)
+    // touch: tap shows/pins the video, tap again to hide it
+    // only one project shows at a time
     (() => {
       const list = document.getElementById('projectList');
       const projects = ['Jill', 'Essay', 'Soft', 'Touchdown', 'Alter', 'Dragon', 'AO', 'Tu', 'Fallout'].map((k) => ({
@@ -480,8 +480,9 @@
       };
       const hide = (p) => { p.detail.classList.remove('show'); p.video.pause(); };
       projects.forEach((p) => {
-        p.item.addEventListener('mouseenter', () => show(p));
-        p.item.addEventListener('mouseleave', () => { if (!p.pinned) hide(p); });
+        // mouse only: touch has no hover, so pointerType gates this to real mouse input
+        p.item.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') show(p); });
+        p.item.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !p.pinned) hide(p); });
         // pointerdown, not click: page 3's drag-rectangle handler captures the pointer
         // on the section, which retargets the click there and the title never sees it.
         // Stopping propagation also keeps a title click from starting an invert rectangle.
@@ -489,7 +490,12 @@
           if (e.button !== 0) return;
           e.stopPropagation();
           p.pinned = !p.pinned;
-          if (!p.pinned && !p.item.matches(':hover')) hide(p);
+          if (p.pinned) {
+            // touch has no hover to reveal it first, so pinning has to show it directly
+            show(p);
+          } else if (e.pointerType !== 'mouse' || !p.item.matches(':hover')) {
+            hide(p);
+          }
         });
       });
       // the visual essay video is a link; keep its clicks away from the section's drag handler
