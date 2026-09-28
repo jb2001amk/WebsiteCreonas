@@ -346,6 +346,52 @@
       height: 160px;
       margin: -80px 0 0 -120px;
     }
+
+    /* nav moves to a horizontal bar across the top instead of a column on the left */
+    .page-nav {
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      flex-direction: row;
+      gap: 12px;
+    }
+
+    /* background photos fit to the device width instead of being cropped by object-fit: cover */
+    .landing-bg,
+    .page img.full,
+    .bg-layer {
+      object-fit: contain;
+    }
+
+    /* single centered camcorder gif instead of the mouse-trail of spawned gifs */
+    .landing-single {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 165px;
+      height: auto;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+
+    /* page 3: list on top, the active project's video/text below it instead of side by side */
+    .project-list-wrap {
+      position: static;
+      width: 100%;
+      height: auto;
+      display: block;
+      padding: 64px 6vw 24px;
+    }
+
+    .project-list li {
+      white-space: normal;
+    }
+
+    .project-detail {
+      position: static;
+      width: 88vw;
+      margin: 0 auto 32px;
+    }
   }
 </style>
 </head>
@@ -594,47 +640,58 @@
       document.getElementById('page' + n).scrollIntoView({ behavior: 'smooth' });
     }
 
-    // CSS reference pixel: 96px = 1in = 2.54cm
-    const PX_PER_CM = 96 / 2.54;
-    const SPAWN_DISTANCE = 1.05 * PX_PER_CM;
-
     const landing = document.getElementById('landing');
-    let lastX = null;
-    let lastY = null;
-    let instanceCount = 0;
+    const isMobile = window.matchMedia('(max-width: 700px)').matches;
 
-    landing.addEventListener('mousemove', (e) => {
-      const rect = landing.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+    if (isMobile) {
+      // mobile: a single centered gif instead of the mouse-driven trail
+      const img = document.createElement('img');
+      img.src = 'camcorder-loop-2-1.gif';
+      img.className = 'landing-single';
+      img.alt = '';
+      landing.appendChild(img);
+    } else {
+      // CSS reference pixel: 96px = 1in = 2.54cm
+      const PX_PER_CM = 96 / 2.54;
+      const SPAWN_DISTANCE = 1.05 * PX_PER_CM;
 
-      if (lastX === null) {
-        lastX = x;
-        lastY = y;
-        return;
-      }
+      let lastX = null;
+      let lastY = null;
+      let instanceCount = 0;
 
-      const dist = Math.hypot(x - lastX, y - lastY);
-      if (dist >= SPAWN_DISTANCE) {
-        const img = document.createElement('img');
-        // unique query string forces its own decode/animation timeline, independent of other instances
-        img.src = 'camcorder-loop-2-1.gif?i=' + (instanceCount++);
-        img.className = 'loop-instance';
-        img.style.left = x + 'px';
-        img.style.top = y + 'px';
-        landing.appendChild(img);
-        setTimeout(() => img.remove(), 5000);
+      landing.addEventListener('mousemove', (e) => {
+        const rect = landing.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-        lastX = x;
-        lastY = y;
-      }
-    });
+        if (lastX === null) {
+          lastX = x;
+          lastY = y;
+          return;
+        }
 
-    landing.addEventListener('click', () => {
-      landing.querySelectorAll('.loop-instance').forEach((img) => img.remove());
-      lastX = null;
-      lastY = null;
-    });
+        const dist = Math.hypot(x - lastX, y - lastY);
+        if (dist >= SPAWN_DISTANCE) {
+          const img = document.createElement('img');
+          // unique query string forces its own decode/animation timeline, independent of other instances
+          img.src = 'camcorder-loop-2-1.gif?i=' + (instanceCount++);
+          img.className = 'loop-instance';
+          img.style.left = x + 'px';
+          img.style.top = y + 'px';
+          landing.appendChild(img);
+          setTimeout(() => img.remove(), 5000);
+
+          lastX = x;
+          lastY = y;
+        }
+      });
+
+      landing.addEventListener('click', () => {
+        landing.querySelectorAll('.loop-instance').forEach((img) => img.remove());
+        lastX = null;
+        lastY = null;
+      });
+    }
   </script>
 
   <script type="importmap">
@@ -737,17 +794,22 @@
     // rotation in radians: constant auto-spin
     const AUTO = 0.0035;
     let rot = 0;
+    const mobileMQ = window.matchMedia('(max-width: 700px)');
 
     function frame() {
       const dt = clock.getDelta();
       const t = clock.elapsedTime;
       rot += AUTO * dt * 60;
       const radius = Math.min(window.innerWidth * 0.38, 620);
+      const vertical = mobileMQ.matches;
       for (let i = 0; i < N; i++) {
         const a = rot + (i / N) * Math.PI * 2;
         const f = (Math.cos(a) + 1) / 2;            // 1 = front, 0 = back
         const el = els[i];
-        el.style.transform = `translate3d(${Math.sin(a) * radius}px, 0, ${Math.cos(a) * radius - radius}px) scale(${(0.4 + 0.6 * f).toFixed(3)})`;
+        // desktop: items swing side to side; mobile: same motion, turned to swing up and down
+        const x = vertical ? 0 : Math.sin(a) * radius;
+        const y = vertical ? Math.sin(a) * radius : 0;
+        el.style.transform = `translate3d(${x}px, ${y}px, ${Math.cos(a) * radius - radius}px) scale(${(0.4 + 0.6 * f).toFixed(3)})`;
         el.style.opacity = (0.3 + 0.7 * f).toFixed(3);
         el.style.filter = `brightness(${(0.45 + 0.55 * f).toFixed(3)})`;
         el.style.zIndex = Math.round(f * 100);
