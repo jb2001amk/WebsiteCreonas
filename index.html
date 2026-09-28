@@ -388,12 +388,16 @@
     }
 
     .project-detail {
-      /* stays a positioned element (just without an offset) so it keeps painting
-         above .bg-cycle; position: static would drop below it since projects
-         without a .project-link (Jill, AO) have no other positioned descendant */
-      position: relative;
+      /* floats centered as an overlay instead of sitting in the flow below the
+         list: this also keeps it out of #page3's layout height, so opening a
+         project can't stretch the section past 100vh and leave a background gap */
+      position: absolute;
+      top: 62%;
+      left: 50%;
+      right: auto;
+      transform: translate(-50%, -50%);
       width: 88vw;
-      margin: 0 auto 32px;
+      margin: 0;
     }
   }
 </style>
@@ -519,7 +523,11 @@
         video: document.getElementById('project' + k + 'Video'),
         pinned: false
       }));
-      const alignVideo = () => projects.forEach((p) => { p.detail.style.top = list.offsetTop + 'px'; });
+      // desktop only: mobile centers the popup with fixed CSS instead of aligning it to the list
+      const alignVideo = () => {
+        if (window.matchMedia('(max-width: 700px)').matches) return;
+        projects.forEach((p) => { p.detail.style.top = list.offsetTop + 'px'; });
+      };
       alignVideo();
       window.addEventListener('resize', alignVideo);
       const show = (p) => {
