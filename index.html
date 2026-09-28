@@ -388,7 +388,10 @@
     }
 
     .project-detail {
-      position: static;
+      /* stays a positioned element (just without an offset) so it keeps painting
+         above .bg-cycle; position: static would drop below it since projects
+         without a .project-link (Jill, AO) have no other positioned descendant */
+      position: relative;
       width: 88vw;
       margin: 0 auto 32px;
     }
