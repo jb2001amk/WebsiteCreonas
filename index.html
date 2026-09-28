@@ -709,7 +709,7 @@
     const ITEMS = [
       { type: 'image', src: 'Carousel/Wireframe.gif', transparent: true },
       { type: 'image', src: 'Carousel/TV.gif', transparent: true },
-      { type: 'video', src: 'Carousel/GRID.mov' },
+      { type: 'image', src: 'Carousel/Storefront.gif', transparent: true },
       { type: 'image', src: 'Carousel/Bird.gif', transparent: true },
       { type: 'image', src: 'Carousel/Running.gif', transparent: true },
       { type: 'image', src: 'Carousel/Speakers.gif', transparent: true },
@@ -800,8 +800,11 @@
       const dt = clock.getDelta();
       const t = clock.elapsedTime;
       rot += AUTO * dt * 60;
-      const radius = Math.min(window.innerWidth * 0.38, 620);
       const vertical = mobileMQ.matches;
+      // mobile swings top-to-bottom, so size the swing off the viewport height instead of width
+      const radius = vertical
+        ? Math.min(window.innerHeight * 0.38, 620)
+        : Math.min(window.innerWidth * 0.38, 620);
       for (let i = 0; i < N; i++) {
         const a = rot + (i / N) * Math.PI * 2;
         const f = (Math.cos(a) + 1) / 2;            // 1 = front, 0 = back
