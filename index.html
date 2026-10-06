@@ -517,6 +517,35 @@
         .map((w) => '<span class="word">' + w + '</span>').join(' ');
     });
 
+    // page 4: hovering a word plays the xp sound, pitched by word length
+    // (4-letter words at original pitch, shortest an octave up, longest an octave down)
+    (() => {
+      const SRC = 'Soundfx/Minecraft XP - Sound Effect (HD).mp3';
+      const NEUTRAL = 4;
+      const base = new Audio(SRC);
+      base.preload = 'auto';
+      const words = document.querySelectorAll('#page4 .about-text .word');
+      const len = (w) => w.textContent.replace(/[^\p{L}\p{N}]/gu, '').length || 1;
+      const lens = [...words].map(len);
+      const min = Math.min(...lens), max = Math.max(...lens);
+      words.forEach((w, i) => {
+        const l = lens[i];
+        // octaves away from the original: +1 at the shortest word, -1 at the longest
+        const oct = l < NEUTRAL ? (NEUTRAL - l) / Math.max(NEUTRAL - min, 1)
+                  : -(l - NEUTRAL) / Math.max(max - NEUTRAL, 1);
+        const rate = Math.pow(2, oct);
+        w.addEventListener('pointerenter', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          // a fresh copy each time so quick sweeps overlap instead of cutting off
+          const a = base.cloneNode();
+          a.preservesPitch = a.mozPreservesPitch = a.webkitPreservesPitch = false;
+          a.playbackRate = rate;
+          a.volume = 0.05;
+          a.play().catch(() => {});
+        });
+      });
+    })();
+
     // Placeholder project index (page 3)
     document.getElementById('projectList').innerHTML =
       '<li id="projectJill">bridal gown by jill bloch</li>' +
@@ -529,17 +558,52 @@
       '<li id="projectFallout">fallout</li>' +
       '<li id="projectTu">tu mirada</li>';
 
-    // mouse: hovering previews the video, click pins it (click again to unpin)
+    // mouse: hovering a title shows its video, which stays until another title is hovered
     // touch: tap shows/pins the video, tap again to hide it
     // only one project shows at a time
     (() => {
       const list = document.getElementById('projectList');
+      // hover sound per project (projects without an entry stay silent)
+      const SOUNDS = {
+        Jill: 'Soundfx/ominous-omen-pad-mysterious-loop_70bpm_D_minor.wav',
+        Essay: 'Soundfx/bells_ve4.mp3',
+        Soft: 'Soundfx/footsteps_softsolitude.mp3',
+        Touchdown: 'Soundfx/touchdown_sample.mp3',
+        Dragon: 'Soundfx/rip the dragon.mp3',
+        Alter: 'Soundfx/alterego_sound.mp3',
+        Tu: 'Soundfx/tumirada_sound.mp3',
+        Fallout: 'Soundfx/fallout_sound.mp3',
+        AO: 'Soundfx/AO_sound.mp3'
+      };
+      // per-project volume overrides (default 0.1)
+      const VOLUMES = {
+        Dragon: 0.05,
+        Alter: 0.05,
+        Tu: 0.05,
+        Fallout: 0.05,
+        AO: 0.025
+      };
       const projects = ['Jill', 'Essay', 'Soft', 'Touchdown', 'Alter', 'Dragon', 'AO', 'Tu', 'Fallout'].map((k) => ({
         item: document.getElementById('project' + k),
         detail: document.getElementById('project' + k + 'Detail'),
         video: document.getElementById('project' + k + 'Video'),
+        sound: SOUNDS[k] ? Object.assign(new Audio(SOUNDS[k]), { preload: 'auto', volume: VOLUMES[k] ?? 0.1 }) : null,
         pinned: false
       }));
+      // restarts this project's sound from the beginning and stops any other project's
+      const playSound = (p) => {
+        projects.forEach((o) => { if (o !== p && o.sound) o.sound.pause(); });
+        if (!p.sound) return;
+        p.sound.currentTime = 0;
+        p.sound.play().catch(() => {});
+      };
+      // leaving page 3 (scrolling, page nav or switching browser tab) silences any project sound
+      const stopSounds = () => projects.forEach((o) => { if (o.sound) o.sound.pause(); });
+      const page3 = document.getElementById('page3');
+      window.addEventListener('scroll', () => {
+        if (Math.abs(page3.getBoundingClientRect().top) > window.innerHeight * 0.6) stopSounds();
+      }, { passive: true });
+      document.addEventListener('visibilitychange', () => { if (document.hidden) stopSounds(); });
       // desktop only: mobile centers the popup with fixed CSS instead of aligning it to the list
       const alignVideo = () => {
         if (window.matchMedia('(max-width: 700px)').matches) return;
@@ -555,21 +619,22 @@
       const hide = (p) => { p.detail.classList.remove('show'); p.video.pause(); };
       projects.forEach((p) => {
         // mouse only: touch has no hover, so pointerType gates this to real mouse input
-        p.item.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') show(p); });
-        p.item.addEventListener('pointerleave', (e) => { if (e.pointerType === 'mouse' && !p.pinned) hide(p); });
+        // the popup stays after the mouse leaves; hovering another title replaces it
+        p.item.addEventListener('pointerenter', (e) => {
+          if (e.pointerType !== 'mouse') return;
+          show(p);
+          playSound(p);
+        });
         // pointerdown, not click: page 3's drag-rectangle handler captures the pointer
         // on the section, which retargets the click there and the title never sees it.
         // Stopping propagation also keeps a title click from starting an invert rectangle.
         p.item.addEventListener('pointerdown', (e) => {
           if (e.button !== 0) return;
           e.stopPropagation();
+          // mouse: hover already shows it and it stays, so a click has nothing to toggle
+          if (e.pointerType === 'mouse') return;
           p.pinned = !p.pinned;
-          if (p.pinned) {
-            // touch has no hover to reveal it first, so pinning has to show it directly
-            show(p);
-          } else if (e.pointerType !== 'mouse' || !p.item.matches(':hover')) {
-            hide(p);
-          }
+          if (p.pinned) show(p); else hide(p);
         });
       });
       // the visual essay video is a link; keep its clicks away from the section's drag handler
