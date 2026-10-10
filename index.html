@@ -200,8 +200,9 @@
 
   .project-detail {
     position: absolute;
-    top: 0; /* set from the list's top edge by script */
+    top: 0; /* set to the list's vertical centre by script */
     right: 6vw;
+    transform: translateY(-50%);
     width: min(40vw, 93.33vh);
     display: none;
     pointer-events: none;
@@ -607,7 +608,8 @@
       // desktop only: mobile centers the popup with fixed CSS instead of aligning it to the list
       const alignVideo = () => {
         if (window.matchMedia('(max-width: 700px)').matches) return;
-        projects.forEach((p) => { p.detail.style.top = list.offsetTop + 'px'; });
+        const centre = list.offsetTop + list.offsetHeight / 2;
+        projects.forEach((p) => { p.detail.style.top = centre + 'px'; });
       };
       alignVideo();
       window.addEventListener('resize', alignVideo);
